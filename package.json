@@ -1,0 +1,28 @@
+{
+    "name": "@dsavidge02/mongo-connector-ts",
+    "version": "1.0.3",
+    "description": "Basic Mongo Connector Singleton Instance",
+    "main": "dist/mongoConnector.js",
+    "types": "dist/mongoConnector.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "prepare": "npm run build"
+    },
+    "repository": {},
+    "keywords": [
+        "mongodb",
+        "typescript",
+        "mongo",
+        "connector",
+        "singleton",
+        "crud"
+    ],
+    "author": "Daniel Savidge",
+    "license": "MIT",
+    "dependencies": {
+        "mongodb": "^6.17.0"
+    },
+    "devDependencies": {
+        "@types/mongodb": "^4.0.6"
+    }
+}
