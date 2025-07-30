@@ -46,14 +46,9 @@ class MongoConnector {
         return this.getCollection<T>(collectionName).find({}).toArray();
     }
 
-    async getOne<T extends Document = Document>(collectionName: string, query: Filter<T>): Promise<WithId<T>> {
+    async getOne<T extends Document = Document>(collectionName: string, query: Filter<T>): Promise<WithId<T> | null> {
         try {
             const result = await this.getCollection<T>(collectionName).findOne(query);
-
-            if (!result) {
-                throw new Error('No document found for the given query.');
-            }
-
             return result;
         }
         catch (err) {
