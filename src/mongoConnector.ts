@@ -114,7 +114,7 @@ class MongoConnector {
                 { returnDocument: 'after' }
             );
 
-            if (!result?.value) {
+            if (!result || result?.value) {
                 throw new Error(`No document found for the given object id: ${_id}.`);
             }
 
