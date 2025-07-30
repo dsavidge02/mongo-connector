@@ -1,6 +1,6 @@
 {
     "name": "@dsavidge02/mongo-connector-ts",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Basic Mongo Connector Singleton Instance",
     "main": "dist/mongoConnector.js",
     "types": "dist/mongoConnector.d.ts",
