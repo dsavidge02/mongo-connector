@@ -23,6 +23,7 @@
         "mongodb": "^6.17.0"
     },
     "devDependencies": {
-        "@types/mongodb": "^4.0.6"
+        "@types/mongodb": "^4.0.6",
+        "typescript": "^5.9.3"
     }
 }
