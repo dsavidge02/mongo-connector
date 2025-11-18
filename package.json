@@ -8,7 +8,10 @@
         "build": "tsc",
         "prepare": "npm run build"
     },
-    "repository": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dsavidge02/mongo-connector.git"
+    },
     "keywords": [
         "mongodb",
         "typescript",
