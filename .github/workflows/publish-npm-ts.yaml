@@ -41,8 +41,8 @@ jobs:
         run: npm run build
 
       # RUN TESTS
-      # - name: Run tests
-      #   run: npm test
+      - name: Run tests
+        run: npm test
 
       # PUBLISH PACKAGE
       - name: Publish to npm

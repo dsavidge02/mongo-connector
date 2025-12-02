@@ -133,12 +133,12 @@ class MongoConnector {
                 { returnDocument: 'after' }
             );
 
-            if (!result || !result.value) {
+            if (!result || !result._id) {
                 console.error(`ERROR: No document found for the given object id: ${_id}.`);
                 throw new Error(`ERROR: Unable to update document.`);
             }
 
-            return result.value;
+            return result;
         }
         catch (err) {
             console.error('ERROR: Unable to update document:', err);
@@ -179,4 +179,3 @@ class MongoConnector {
 }
 
 export const mongoConnector = MongoConnector.getInstance();
-
