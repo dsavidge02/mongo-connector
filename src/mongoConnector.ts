@@ -64,7 +64,11 @@ class MongoConnector {
 
     async getOne<T extends Document>(collectionName: string, query: Filter<T>): Promise<WithId<T> | null> {
         try {
-            const result = await this.getCollection<T>(collectionName).findOne(query);
+            const normQuery: Filter<T> = {...query} as Filter<T>;
+            if (normQuery._id && typeof normQuery._id === 'string') {
+                normQuery._id = new ObjectId(normQuery._id) as any;
+            }
+            const result = await this.getCollection<T>(collectionName).findOne(normQuery);
             return result;
         }
         catch (err) {
