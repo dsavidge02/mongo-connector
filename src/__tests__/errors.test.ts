@@ -4,7 +4,8 @@ import {
     ValidationError,
     InvalidObjectIdError,
     DuplicateKeyError,
-    DocumentNotFoundError
+    DocumentNotFoundError,
+    OperationFailedError
 } from '../errors';
 
 describe('Error Classes', () => {
@@ -150,6 +151,61 @@ describe('Error Classes', () => {
             const error = new DocumentNotFoundError('users', '507f1f77bcf86cd799439011');
             expect(error.code).toBe('DOCUMENT_NOT_FOUND');
             expect(error.name).toBe('DocumentNotFoundError');
+        });
+    });
+
+    describe('OperationFailedError', () => {
+        it('should include operation and collection in message', () => {
+            const error = new OperationFailedError('insertOne', 'users');
+            expect(error.message).toContain('insertOne');
+            expect(error.message).toContain('users');
+            expect(error.message).toBe("Operation 'insertOne' failed on collection 'users'");
+        });
+
+        it('should store operation and collection properties', () => {
+            const error = new OperationFailedError('updateOne', 'products');
+            expect(error.operation).toBe('updateOne');
+            expect(error.collection).toBe('products');
+        });
+
+        it('should have code OPERATION_FAILED', () => {
+            const error = new OperationFailedError('deleteOne', 'orders');
+            expect(error.code).toBe('OPERATION_FAILED');
+            expect(error.name).toBe('OperationFailedError');
+        });
+
+        it('should extend MongoConnectorError', () => {
+            const error = new OperationFailedError('findOne', 'users');
+            expect(error).toBeInstanceOf(MongoConnectorError);
+            expect(error).toBeInstanceOf(OperationFailedError);
+            expect(error).toBeInstanceOf(Error);
+        });
+
+        it('should preserve original error when provided', () => {
+            const originalError = new Error('Connection timeout');
+            const error = new OperationFailedError('insertOne', 'users', originalError);
+            expect(error.originalError).toBe(originalError);
+            expect(error.message).toContain('Connection timeout');
+            expect(error.message).toBe("Operation 'insertOne' failed on collection 'users': Connection timeout");
+        });
+
+        it('should work without original error', () => {
+            const error = new OperationFailedError('insertOne', 'users');
+            expect(error.originalError).toBeUndefined();
+        });
+    });
+
+    describe('MongoConnectorError with originalError', () => {
+        it('should store originalError property when provided', () => {
+            const originalError = new Error('Original error message');
+            const error = new MongoConnectorError('Wrapped error', 'TEST_CODE', originalError);
+            expect(error.originalError).toBe(originalError);
+            expect(error.originalError?.message).toBe('Original error message');
+        });
+
+        it('should work without originalError', () => {
+            const error = new MongoConnectorError('Test error', 'TEST_CODE');
+            expect(error.originalError).toBeUndefined();
         });
     });
 });

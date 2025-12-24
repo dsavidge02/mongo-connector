@@ -277,6 +277,42 @@ describe('MongoConnector', () => {
           mongoConnector.getMany('test-collection')
         ).rejects.toThrow(ConnectionError);
       });
+
+      it('should handle string _id by converting to ObjectId', async () => {
+        const collection = mongoConnector.getCollection('test-collection');
+        const insertResult = await collection.insertOne({ name: 'TestUser', age: 25 });
+        const insertedId = insertResult.insertedId;
+
+        // Query with string _id
+        const results = await mongoConnector.getMany<TestDoc>('test-collection', {
+          _id: insertedId.toString()
+        } as any);
+
+        expect(results).toHaveLength(1);
+        expect(results[0].name).toBe('TestUser');
+        expect(results[0]._id.toString()).toBe(insertedId.toString());
+      });
+
+      it('should wrap errors in OperationFailedError', async () => {
+        const { OperationFailedError } = await import('./errors');
+
+        // Mock getCollection to throw a non-ConnectionError
+        const originalGetCollection = mongoConnector.getCollection;
+        mongoConnector.getCollection = jest.fn().mockImplementation(() => {
+          throw new Error('Simulated database error');
+        });
+
+        await expect(
+          mongoConnector.getMany('test-collection')
+        ).rejects.toThrow(OperationFailedError);
+
+        await expect(
+          mongoConnector.getMany('test-collection')
+        ).rejects.toThrow('Operation \'find\' failed on collection \'test-collection\'');
+
+        // Restore original method
+        mongoConnector.getCollection = originalGetCollection;
+      });
     });
 
     describe('count', () => {
@@ -310,6 +346,40 @@ describe('MongoConnector', () => {
         await expect(
           mongoConnector.count('test-collection')
         ).rejects.toThrow(ConnectionError);
+      });
+
+      it('should handle string _id by converting to ObjectId', async () => {
+        const collection = mongoConnector.getCollection('test-collection');
+        const insertResult = await collection.insertOne({ name: 'TestUser', age: 25 });
+        const insertedId = insertResult.insertedId;
+
+        // Count with string _id
+        const count = await mongoConnector.count<TestDoc>('test-collection', {
+          _id: insertedId.toString()
+        } as any);
+
+        expect(count).toBe(1);
+      });
+
+      it('should wrap errors in OperationFailedError', async () => {
+        const { OperationFailedError } = await import('./errors');
+
+        // Mock getCollection to throw a non-ConnectionError
+        const originalGetCollection = mongoConnector.getCollection;
+        mongoConnector.getCollection = jest.fn().mockImplementation(() => {
+          throw new Error('Simulated database error');
+        });
+
+        await expect(
+          mongoConnector.count('test-collection')
+        ).rejects.toThrow(OperationFailedError);
+
+        await expect(
+          mongoConnector.count('test-collection')
+        ).rejects.toThrow('Operation \'countDocuments\' failed on collection \'test-collection\'');
+
+        // Restore original method
+        mongoConnector.getCollection = originalGetCollection;
       });
     });
 
@@ -346,6 +416,27 @@ describe('MongoConnector', () => {
         await expect(
           mongoConnector.exists('test-collection', { name: 'Alice' })
         ).rejects.toThrow(ConnectionError);
+      });
+
+      it('should wrap errors in OperationFailedError', async () => {
+        const { OperationFailedError } = await import('./errors');
+
+        // Mock getCollection to throw a non-ConnectionError
+        const originalGetCollection = mongoConnector.getCollection;
+        mongoConnector.getCollection = jest.fn().mockImplementation(() => {
+          throw new Error('Simulated database error');
+        });
+
+        await expect(
+          mongoConnector.exists('test-collection', { name: 'Alice' })
+        ).rejects.toThrow(OperationFailedError);
+
+        await expect(
+          mongoConnector.exists('test-collection', { name: 'Alice' })
+        ).rejects.toThrow('Operation \'exists\' failed on collection \'test-collection\'');
+
+        // Restore original method
+        mongoConnector.getCollection = originalGetCollection;
       });
     });
   });
@@ -462,7 +553,7 @@ describe('MongoConnector', () => {
       expect(result).toBeDefined();
       await expect(
         mongoConnector.updateOne('test-collection', { _id: 'invalid-id', name:'Alice', age: 35 })
-      ).rejects.toThrow('ERROR: Unable to update document.');
+      ).rejects.toThrow("Operation 'updateOne' failed on collection 'test-collection'");
     });
   });
 
@@ -482,7 +573,7 @@ describe('MongoConnector', () => {
     it('Failing to Delete One Document', async () => {
       await expect(
         mongoConnector.deleteOne('test-collection', { _id: 'invalid-id' })
-      ).rejects.toThrow('ERROR: Unable to delete document.');
+      ).rejects.toThrow("Operation 'deleteOne' failed on collection 'test-collection'");
     });
   });
 
