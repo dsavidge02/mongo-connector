@@ -1,0 +1,54 @@
+---
+description: TypeScript MongoDB Library coding standards (detected from codebase)
+alwaysApply: true
+---
+
+# TypeScript MongoDB Library Style Guide
+
+## Detected Patterns
+- Naming: camelCase for methods/variables, PascalCase for classes (observed in 100% of codebase)
+- Architecture: Singleton pattern for database connector (observed in core class structure)
+- Testing: Jest with mongodb-memory-server (found in test files with beforeEach/afterEach hooks)
+- Indentation: 4 spaces (consistent across all TypeScript files)
+
+## Code Style Rules
+
+### Naming Conventions
+- Classes: PascalCase (e.g., `MongoConnector`)
+- Methods: camelCase (e.g., `getInstance`, `getCollection`)
+- Variables: camelCase (e.g., `mongoUri`, `dbName`)
+- Interfaces: PascalCase with descriptive names (e.g., `TestDoc`)
+- Type parameters: Single uppercase letter or PascalCase (e.g., `<T extends Document>`)
+
+### TypeScript Standards
+- Use strict mode in tsconfig.json
+- Leverage generics for type safety in reusable functions
+- Explicitly type function parameters and return types
+- Use MongoDB types from official driver (e.g., `Document`, `Filter`, `WithId`)
+- Avoid `any` type - use proper type constraints
+
+### Error Handling
+- Wrap database operations in try-catch blocks
+- Log errors to console before throwing
+- Throw errors with descriptive messages prefixed with "ERROR:"
+- Use consistent error message format: `ERROR: <description>`
+- Example pattern:
+  ```typescript
+  try {
+    // operation
+  } catch (err) {
+    console.error('ERROR: Description:', err);
+    throw new Error('ERROR: User-friendly message.');
+  }
+  ```
+
+### Async Operations
+- Use async/await for all database operations
+- Return Promises with proper typing
+- Handle Promise rejections appropriately
+
+### Code Organization
+- Keep related functionality in single class/module
+- Use private properties for internal state
+- Export singleton instance for easy consumption
+- Use clear, descriptive method names that indicate action

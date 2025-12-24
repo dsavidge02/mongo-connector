@@ -1,0 +1,87 @@
+---
+description: Architectural patterns for MongoDB library design
+alwaysApply: true
+---
+
+# Architecture Patterns
+
+## Singleton Pattern (Detected in Codebase)
+
+### Implementation
+- Private constructor to prevent direct instantiation
+- Static instance property to hold single instance
+- Static getInstance() method for access
+- Stateful properties (client, db) managed internally
+
+### Example Structure
+```typescript
+class ServiceClass {
+    private static instance: ServiceClass;
+    private client: MongoClient | null = null;
+
+    private constructor() {}
+
+    static getInstance(): ServiceClass {
+        if (!ServiceClass.instance) {
+            ServiceClass.instance = new ServiceClass();
+        }
+        return ServiceClass.instance;
+    }
+}
+```
+
+## Connection Management
+
+### Lifecycle Pattern
+1. **Connect**: Establish connection with URI and optional database
+2. **SetDB**: Select specific database to work with
+3. **Operations**: Perform CRUD operations
+4. **Close**: Clean up and close connection
+
+### State Validation
+- Check connection state before operations
+- Throw descriptive errors if not connected
+- Allow reconnection by closing previous connection
+- Nullify state on close for clean reset
+
+## Generic CRUD Operations
+
+### Type Safety
+- Use TypeScript generics for all CRUD methods
+- Extend MongoDB's Document type for type constraints
+- Return typed results (e.g., `WithId<T>`)
+- Accept typed filters and queries
+
+### Method Patterns
+- **getOne**: Query with Filter<T>, return WithId<T> | null
+- **createOne**: Accept new document, validate uniqueness, return WithId<T>
+- **updateOne**: Require _id, accept partial updates, return updated WithId<T>
+- **deleteOne**: Require _id, return boolean success
+
+### ObjectId Handling
+- Accept both string and ObjectId for _id fields
+- Convert string _id to ObjectId internally for queries
+- Use consistent pattern across all methods:
+  ```typescript
+  const query = { _id: typeof _id === 'string' ? new ObjectId(_id) : _id };
+  ```
+
+## Library Design Principles
+
+### Public API
+- Export singleton instance for consumer convenience
+- Keep interface simple and intuitive
+- Use descriptive method names
+- Provide type definitions for consumers
+
+### Internal Implementation
+- Keep state private
+- Validate inputs before operations
+- Provide helpful error messages
+- Log operations for debugging
+
+### Database Abstraction
+- Simplify MongoDB driver complexity
+- Provide opinionated CRUD interface
+- Handle common patterns (unique field validation, _id conversion)
+- Return clean, typed results

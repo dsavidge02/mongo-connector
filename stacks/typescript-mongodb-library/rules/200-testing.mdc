@@ -1,0 +1,57 @@
+---
+description: Testing patterns for TypeScript MongoDB libraries
+alwaysApply: true
+---
+
+# Testing Standards
+
+## Testing Framework
+- Use Jest with ts-jest preset for TypeScript support
+- Use mongodb-memory-server for isolated in-memory database testing
+- Organize tests with `describe` blocks for logical grouping
+- Use `beforeEach`/`afterEach` for test isolation
+
+## Test Structure (Detected Pattern)
+
+### Setup/Teardown
+```typescript
+beforeEach(async () => {
+  mongoServer = await MongoMemoryServer.create();
+  const uri = mongoServer.getUri();
+  await connector.connect(uri, 'test-db');
+});
+
+afterEach(async () => {
+  await connector.close();
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
+});
+```
+
+### Test Organization
+- Group related tests in `describe` blocks by feature/method
+- Use descriptive test names that explain the scenario
+- Test both success and failure cases
+- Example naming: "Creating One Document", "Failing to Create One Document"
+
+### Test Coverage
+- Test all public methods
+- Test error conditions and edge cases
+- Verify error messages match expected format
+- Test with realistic data structures
+- Use type assertions for TypeScript safety
+
+### Jest Configuration
+- Set testEnvironment to 'node'
+- Use testMatch pattern: `**/*.test.ts`
+- Exclude test files from coverage collection
+- Enable verbose output for clarity
+- Generate multiple coverage report formats (text, lcov, html)
+
+## Best Practices
+- Use mongodb-memory-server to avoid external dependencies
+- Create fresh database for each test (isolation)
+- Clean up connections and servers in afterEach
+- Use type definitions in tests for better IDE support
+- Test with actual MongoDB types (ObjectId, etc.)

@@ -1,19 +1,9 @@
 {
     "name": "@dsavidge02/mongo-connector-ts",
-    "version": "2.0.0",
+    "version": "1.0.9",
     "description": "Basic Mongo Connector Singleton Instance",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "default": "./dist/index.js"
-        },
-        "./testing": {
-            "types": "./dist/testing.d.ts",
-            "default": "./dist/testing.js"
-        }
-    },
+    "main": "dist/mongoConnector.js",
+    "types": "dist/mongoConnector.d.ts",
     "scripts": {
         "build": "tsc",
         "prepare": "npm run build",
