@@ -1,7 +1,7 @@
 {
-    "name": "@dsavidge02/mongo-connector-ts",
-    "version": "2.0.0",
-    "description": "Basic Mongo Connector Singleton Instance",
+    "name": "@your-org/mongo-connector-ts",
+    "version": "1.0.0",
+    "description": "TypeScript MongoDB Library with Singleton Pattern",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "exports": {
@@ -23,7 +23,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/dsavidge02/mongo-connector.git"
+        "url": "git+https://github.com/your-org/mongo-connector.git"
     },
     "keywords": [
         "mongodb",
@@ -33,7 +33,7 @@
         "singleton",
         "crud"
     ],
-    "author": "Daniel Savidge",
+    "author": "Your Name",
     "license": "MIT",
     "dependencies": {
         "mongodb": "^6.17.0"

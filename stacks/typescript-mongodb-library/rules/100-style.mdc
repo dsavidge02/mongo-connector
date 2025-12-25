@@ -1,0 +1,80 @@
+---
+description: TypeScript MongoDB Library coding standards (detected from codebase)
+alwaysApply: true
+---
+
+# TypeScript MongoDB Library Style Guide
+
+## Detected Patterns
+- Naming: camelCase for methods/variables, PascalCase for classes (observed in 100% of codebase)
+- Architecture: Singleton pattern for database connector (observed in core class structure)
+- Testing: Jest with mongodb-memory-server (found in test files with beforeEach/afterEach hooks)
+- Indentation: 4 spaces (consistent across all TypeScript files)
+
+## Code Style Rules
+
+### Naming Conventions
+- Classes: PascalCase (e.g., `MongoConnector`)
+- Methods: camelCase (e.g., `getInstance`, `getCollection`)
+- Variables: camelCase (e.g., `mongoUri`, `dbName`)
+- Interfaces: PascalCase with descriptive names (e.g., `TestDoc`)
+- Type parameters: Single uppercase letter or PascalCase (e.g., `<T extends Document>`)
+
+### TypeScript Standards
+- Use strict mode in tsconfig.json
+- Leverage generics for type safety in reusable functions
+- Explicitly type function parameters and return types
+- Use MongoDB types from official driver (e.g., `Document`, `Filter`, `WithId`)
+- Avoid `any` type - use proper type constraints
+
+### Error Handling
+- Use custom error classes that extend MongoConnectorError base class
+- Create specialized error types for different scenarios:
+  - `ConnectionError` - for connection failures
+  - `ValidationError` - for input validation failures
+  - `DuplicateKeyError` - for unique constraint violations
+  - `DocumentNotFoundError` - for missing documents
+  - `OperationFailedError` - for general operation failures
+  - `InvalidObjectIdError` - for ObjectId conversion failures
+- Organize error classes in `src/errors/` directory
+- Export error parsers for extracting useful information from MongoDB errors
+- Example pattern:
+  ```typescript
+  import { DuplicateKeyError, parseDuplicateKeyError } from './errors';
+
+  try {
+    // operation
+  } catch (error) {
+    if (error instanceof MongoServerError && error.code === 11000) {
+      throw new DuplicateKeyError(parseDuplicateKeyError(error));
+    }
+    throw new OperationFailedError('Description', error);
+  }
+  ```
+
+### Async Operations
+- Use async/await for all database operations
+- Return Promises with proper typing
+- Handle Promise rejections appropriately
+
+### Code Organization
+- Keep related functionality in single class/module
+- Use private properties for internal state
+- Export singleton instance for easy consumption
+- Use clear, descriptive method names that indicate action
+- Organize code into feature directories:
+  - `errors/` - Custom error classes with index export
+  - `utils/` - Utility functions (retry, validation, objectId)
+  - `types/` - TypeScript interfaces and type definitions
+  - `__tests__/` - Test files co-located with source
+- Use index files to create clean public APIs
+- Support dual export strategy (main + testing utilities)
+
+### Documentation Standards
+- Add JSDoc comments to all public methods
+- Include @param tags with type and description
+- Include @returns tag describing return value
+- Include @throws tag for each error type that may be thrown
+- Include @example tag with realistic usage examples
+- Format examples with language tags: ```typescript
+- Document retry behavior and options where applicable

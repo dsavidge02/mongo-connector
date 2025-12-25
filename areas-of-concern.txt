@@ -1,0 +1,39 @@
+Issues to Address 🔶
+Medium Priority
+Inconsistent Error Types (mongoConnector.ts)
+Multiple methods throw generic Error instead of custom errors
+Lines: 84, 89, 103, 228, 244, 250, 262, 274, 277
+Should use ConnectionError, DocumentNotFoundError, etc.
+Type Safety with any (mongoConnector.ts:375-385)
+Error handling in createMany uses any type
+Could define proper interfaces for MongoDB write errors
+Low Priority
+Duplicate _id Conversion Logic
+String-to-ObjectId conversion repeated in multiple methods
+Consider centralizing using existing toObjectId utility
+Unused Private Method
+createInstance() at mongoConnector.ts:27-29 is only used by testing utilities
+
+use the toObjectId utility properly throughout to ensure consistent ObjectId conversion
+
+Type Safety
+⚠️ 3 instances of any type found:
+mongoConnector.ts:97: normQuery._id = new ObjectId(normQuery._id) as any;
+mongoConnector.ts:375: catch (err: any) in createMany
+mongoConnector.ts:380, 385: (we: any) in error handling
+Impact: These are in error handling paths where MongoDB's error structure is dynamic
+Recommendation: Consider defining interfaces for MongoDB write errors to remove any usage
+
+⚠️ INCONSISTENT: Some methods throw generic Error instead of custom errors:
+mongoConnector.ts:84: throw new Error('ERROR: Database not selected')
+mongoConnector.ts:89: throw new Error('Database is not selected')
+mongoConnector.ts:103: throw new Error('ERROR: Could not find document')
+mongoConnector.ts:228, 244, 250: Generic errors in updateOne
+mongoConnector.ts:262, 274, 277: Generic errors in deleteOne
+Recommendation: Replace with appropriate custom error types (ConnectionError, DocumentNotFoundError)
+
+Testing Gaps
+⚠️ MINOR: No tests for getOne with string _id conversion logic (mongoConnector.ts:96-98)
+⚠️ MINOR: createInstance() static method (mongoConnector.ts:27-29) is private but only used by testing utilities
+
+
