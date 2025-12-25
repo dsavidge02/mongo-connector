@@ -54,17 +54,57 @@ class ServiceClass {
 
 ### Method Patterns
 - **getOne**: Query with Filter<T>, return WithId<T> | null
+- **getMany**: Query with Filter<T> and QueryOptions (limit, skip, sort), return WithId<T>[]
 - **createOne**: Accept new document, validate uniqueness, return WithId<T>
+- **createMany**: Bulk insert with partial failure handling, return BulkCreateResult<T>
 - **updateOne**: Require _id, accept partial updates, return updated WithId<T>
+- **updateMany**: Update multiple documents, return update count
 - **deleteOne**: Require _id, return boolean success
+- **deleteMany**: Delete multiple documents, return delete count
+
+### Bulk Operations
+- Support partial success with `BulkCreateResult<T>` type
+- Return both successful insertions and failures
+- Include error information for failed documents
+- Handle `MongoBulkWriteError` appropriately
+- Example return structure:
+  ```typescript
+  interface BulkCreateResult<T> {
+    inserted: WithId<T>[];
+    failed: Array<{ document: T; error: Error }>;
+  }
+  ```
 
 ### ObjectId Handling
 - Accept both string and ObjectId for _id fields
-- Convert string _id to ObjectId internally for queries
+- Use utility function `toObjectId()` for conversion with validation
+- Throw `InvalidObjectIdError` for invalid formats
 - Use consistent pattern across all methods:
   ```typescript
-  const query = { _id: typeof _id === 'string' ? new ObjectId(_id) : _id };
+  import { toObjectId } from './utils';
+
+  const objectId = toObjectId(_id); // Validates and converts
+  const query = { _id: objectId };
   ```
+
+### Retry Pattern
+- Use `withRetry()` utility for resilient operations
+- Configure retry options (maxAttempts, baseDelayMs, maxDelayMs)
+- Implement exponential backoff strategy
+- Apply to connection operations and critical database calls
+- Example:
+  ```typescript
+  await withRetry(async () => {
+    // operation that may fail transiently
+  }, { maxAttempts: 5, baseDelayMs: 1000 });
+  ```
+
+### Validation Pattern
+- Use assertion utilities for input validation
+- `assertNotEmpty(value, fieldName)` - ensures value is not null/undefined/empty
+- `assertRequired(value, fieldName)` - ensures value exists
+- Throw `ValidationError` with descriptive messages
+- Validate before database operations to fail fast
 
 ## Library Design Principles
 

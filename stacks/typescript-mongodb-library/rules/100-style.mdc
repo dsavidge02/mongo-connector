@@ -28,17 +28,27 @@ alwaysApply: true
 - Avoid `any` type - use proper type constraints
 
 ### Error Handling
-- Wrap database operations in try-catch blocks
-- Log errors to console before throwing
-- Throw errors with descriptive messages prefixed with "ERROR:"
-- Use consistent error message format: `ERROR: <description>`
+- Use custom error classes that extend MongoConnectorError base class
+- Create specialized error types for different scenarios:
+  - `ConnectionError` - for connection failures
+  - `ValidationError` - for input validation failures
+  - `DuplicateKeyError` - for unique constraint violations
+  - `DocumentNotFoundError` - for missing documents
+  - `OperationFailedError` - for general operation failures
+  - `InvalidObjectIdError` - for ObjectId conversion failures
+- Organize error classes in `src/errors/` directory
+- Export error parsers for extracting useful information from MongoDB errors
 - Example pattern:
   ```typescript
+  import { DuplicateKeyError, parseDuplicateKeyError } from './errors';
+
   try {
     // operation
-  } catch (err) {
-    console.error('ERROR: Description:', err);
-    throw new Error('ERROR: User-friendly message.');
+  } catch (error) {
+    if (error instanceof MongoServerError && error.code === 11000) {
+      throw new DuplicateKeyError(parseDuplicateKeyError(error));
+    }
+    throw new OperationFailedError('Description', error);
   }
   ```
 
@@ -52,3 +62,19 @@ alwaysApply: true
 - Use private properties for internal state
 - Export singleton instance for easy consumption
 - Use clear, descriptive method names that indicate action
+- Organize code into feature directories:
+  - `errors/` - Custom error classes with index export
+  - `utils/` - Utility functions (retry, validation, objectId)
+  - `types/` - TypeScript interfaces and type definitions
+  - `__tests__/` - Test files co-located with source
+- Use index files to create clean public APIs
+- Support dual export strategy (main + testing utilities)
+
+### Documentation Standards
+- Add JSDoc comments to all public methods
+- Include @param tags with type and description
+- Include @returns tag describing return value
+- Include @throws tag for each error type that may be thrown
+- Include @example tag with realistic usage examples
+- Format examples with language tags: ```typescript
+- Document retry behavior and options where applicable
